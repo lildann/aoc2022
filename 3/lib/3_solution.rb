@@ -5,8 +5,10 @@ class Rucksack
 
   def initialize(items)
     @items = File.read(items).split("\n")
+    @groups_of_three = @items.each_slice(3).to_a
     @duplicates = []
     @scores = []
+    @shared = []
   end
 
   def find_duplicates
@@ -16,6 +18,12 @@ class Rucksack
       @duplicates << duplicate
     end
     @duplicates.flatten!
+  end
+
+  def find_shared_item
+    @groups_of_three.each do |group|
+      group[0].split("").uniq.each { |letter| @shared << letter if group[1].include?(letter) &&  group[2].include?(letter) }
+    end
   end
 
   def get_scores
@@ -30,8 +38,17 @@ class Rucksack
     @duplicates.each { |duplicate| @scores.each { |letter, score| total << score if duplicate == letter } }
     total.sum
   end
+
+  def sum_of_shared_types
+    get_scores
+    find_shared_item
+    total = []
+    @shared.each { |item| @scores.each { |letter, score| total << score if item == letter } }
+    total.sum
+  end
 end
 
 p Rucksack.new("input.txt").sum_of_types
+p Rucksack.new("input.txt").sum_of_shared_types
 
 
